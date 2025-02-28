@@ -18,6 +18,33 @@ return {
     opts = {
       servers = {
         tailwindcss = {
+          root_dir = function(fname)
+            local path = vim.fs.dirname(vim.fs.find("package.json", { path = fname, upward = true })[1])
+            if not path then
+              return nil
+            end
+
+            local file = io.open(path .. "/package.json", "r")
+            if not file then
+              return nil
+            end
+
+            local found = false
+            for line in file:lines() do
+              if line:match('"tailwindcss"%s*:') then
+                found = true
+                break
+              end
+            end
+
+            file:close()
+
+            if found then
+              return path
+            else
+              return nil
+            end
+          end,
           -- exclude a filetype from the default_config
           filetypes_exclude = { "markdown" },
           -- add additional filetypes to the default_config
